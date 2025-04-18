@@ -14,7 +14,7 @@
 
 ## 📌 About the Project
 
-**AutoComplaint** is a smart, AI-powered CLI app designed for Indian citizens to **generate legally valid complaint drafts** in seconds. It's simple, fast, and customizable — for police complaints, fraud, theft, and more.
+**AutoComplaint** is a smart, AI-powered CLI app designed for Indian citizens to **generate legally valid complaint drafts** in seconds. It's simple, fast, and customizable for police complaints, fraud, theft, and more.
 
 ---
 
