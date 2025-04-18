@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AutoComplaint Generator</title>
+</head>
+<body>
+    <h2>AutoComplaint Generator</h2>
+    <form method="post">
+        <label>Issue:</label><br>
+        <input type="text" name="issue"><br><br>
+        <label>Against:</label><br>
+        <input type="text" name="against"><br><br>
+        <button type="submit">Generate Complaint</button>
+    </form>
+    {% if complaint %}
+        <h3>Generated Complaint:</h3>
+        <p>{{ complaint }}</p>
+    {% endif %}
+</body>
+</html>
