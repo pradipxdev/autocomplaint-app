@@ -1,68 +1,87 @@
-from flask import Flask, render_template, request, send_file
-from reportlab.pdfgen import canvas
-from flask_mail import Mail, Message
-import io
+from flask import Flask, render_template, request, redirect, url_for, make_response
+from fpdf import FPDF
+import smtplib
+from email.message import EmailMessage
 import os
-import openai
 
 app = Flask(__name__)
 
-# Configure Flask-Mail
-app.config.update(
-    MAIL_SERVER='smtp.gmail.com',
-    MAIL_PORT=587,
-    MAIL_USE_TLS=True,
-    MAIL_USERNAME='your_email@gmail.com',        # 🔁 Replace with your Gmail
-    MAIL_PASSWORD='your_app_password',           # 🔁 Replace with your Gmail App Password
-)
-mail = Mail(app)
+# 🧠 Simple GPT-like smart complaint generator
+def generate_complaint(data, lang='en'):
+    if lang == 'en':
+        return f"""
+        Dear Sir/Madam,
 
-# OpenAI Key
-openai.api_key = "your_openai_api_key"  # 🔁 Replace with your OpenAI API key
+        I, {data['name']}, wish to lodge a complaint regarding "{data['issue']}" against "{data['against']}".
+        The issue occurred on {data['date']} at {data['location']}. Details: {data['description']}
+
+        I request you to kindly take necessary action.
+
+        Regards,  
+        {data['name']}
+        """
+    elif lang == 'hi':
+        return f"""
+        मान्यवर,
+
+        मैं, {data['name']}, {data['against']} के खिलाफ "{data['issue']}" की शिकायत दर्ज कराना चाहता/चाहती हूँ।
+        यह घटना {data['date']} को {data['location']} में हुई थी। विवरण: {data['description']}
+
+        कृपया आवश्यक कार्रवाई करें।
+
+        धन्यवाद,  
+        {data['name']}
+        """
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        issue = request.form['issue']
-        against = request.form['against']
-        date = request.form['date']
-        location = request.form['location']
-        description = request.form['description']
-        email = request.form['email']
-
-        # ChatGPT generated content
-        prompt = f"Write a legal complaint in simple English about {issue} against {against} that occurred on {date} at {location}. Description: {description}"
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.7,
-            max_tokens=300
-        )
-        complaint_text = response.choices[0].message.content.strip()
-
-        # Email the complaint
-        if email:
-            msg = Message('Your Complaint Document', sender='your_email@gmail.com', recipients=[email])
-            msg.body = complaint_text
-            mail.send(msg)
-
-        # Generate PDF
-        pdf_buffer = io.BytesIO()
-        p = canvas.Canvas(pdf_buffer)
-        p.drawString(100, 800, "AutoComplaint Generator")
-        p.drawString(100, 780, f"Date: {date}")
-        p.drawString(100, 760, f"Location: {location}")
-        p.drawString(100, 740, f"Issue: {issue}")
-        p.drawString(100, 720, f"Against: {against}")
-        p.drawString(100, 700, "Complaint:")
-        text_object = p.beginText(100, 680)
-        for line in complaint_text.split('\n'):
-            text_object.textLine(line)
-        p.drawText(text_object)
-        p.showPage()
-        p.save()
-        pdf_buffer.seek(0)
-
-        return send_file(pdf_buffer, as_attachment=True, download_name="complaint.pdf")
-
+        data = {
+            "name": request.form['name'],
+            "issue": request.form['issue'],
+            "against": request.form['against'],
+            "date": request.form['date'],
+            "location": request.form['location'],
+            "description": request.form['description'],
+            "lang": request.form['language']
+        }
+        complaint_text = generate_complaint(data, data['lang'])
+        return render_template('complaint.html', complaint=complaint_text, data=data)
     return render_template('index.html')
+
+@app.route('/download', methods=['POST'])
+def download_pdf():
+    text = request.form['complaint']
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.set_font("Arial", size=12)
+    for line in text.split('\n'):
+        pdf.multi_cell(0, 10, line)
+    response = make_response(pdf.output(dest='S').encode('latin-1'))
+    response.headers['Content-Disposition'] = 'attachment; filename=complaint.pdf'
+    response.headers['Content-Type'] = 'application/pdf'
+    return response
+
+@app.route('/send_email', methods=['POST'])
+def send_email():
+    email_address = request.form['email']
+    complaint_text = request.form['complaint']
+
+    msg = EmailMessage()
+    msg.set_content(complaint_text)
+    msg['Subject'] = 'Your AutoComplaint'
+    msg['From'] = 'youremail@example.com'  # change this
+    msg['To'] = email_address
+
+    try:
+        with smtplib.SMTP('smtp.gmail.com', 587) as smtp:
+            smtp.starttls()
+            smtp.login('youremail@example.com', 'yourpassword')  # change this
+            smtp.send_message(msg)
+        return 'Email sent successfully!'
+    except Exception as e:
+        return f"Error sending email: {str(e)}"
+
+if __name__ == '__main__':
+    app.run(debug=True)
