@@ -35,7 +35,5 @@
 - 🎙️ Voice input
 - 🪪 Aadhaar validation (offline)
 
----
 
-## 🖼️ Demo (CLI Output)
 
