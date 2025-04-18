@@ -1,12 +1,31 @@
 from flask import Flask, render_template, request, redirect, url_for, make_response
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, login_required, current_user
+from models import db, User
+from auth import auth
 from fpdf import FPDF
 import smtplib
 from email.message import EmailMessage
 import os
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key_here'
 
-# 🧠 Simple GPT-like smart complaint generator
+# Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///autocomplaint.db'
+db.init_app(app)
+
+# Authentication setup
+login_manager = LoginManager()
+login_manager.login_view = 'auth.login'
+login_manager.init_app(app)
+app.register_blueprint(auth)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+# Smart GPT-like complaint generator
 def generate_complaint(data, lang='en'):
     if lang == 'en':
         return f"""
@@ -49,6 +68,11 @@ def index():
         return render_template('complaint.html', complaint=complaint_text, data=data)
     return render_template('index.html')
 
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html', user=current_user)
+
 @app.route('/download', methods=['POST'])
 def download_pdf():
     text = request.form['complaint']
@@ -71,17 +95,19 @@ def send_email():
     msg = EmailMessage()
     msg.set_content(complaint_text)
     msg['Subject'] = 'Your AutoComplaint'
-    msg['From'] = 'youremail@example.com'  # change this
+    msg['From'] = 'youremail@example.com'  # Change this
     msg['To'] = email_address
 
     try:
         with smtplib.SMTP('smtp.gmail.com', 587) as smtp:
             smtp.starttls()
-            smtp.login('youremail@example.com', 'yourpassword')  # change this
+            smtp.login('youremail@example.com', 'yourpassword')  # Change this
             smtp.send_message(msg)
         return 'Email sent successfully!'
     except Exception as e:
         return f"Error sending email: {str(e)}"
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)
