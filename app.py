@@ -1,51 +1,68 @@
-from flask import Flask, render_template, request
-import random
+from flask import Flask, render_template, request, send_file
+from reportlab.pdfgen import canvas
+from flask_mail import Mail, Message
+import io
+import os
+import openai
 
 app = Flask(__name__)
 
-@app.route("/", methods=["GET", "POST"])
+# Configure Flask-Mail
+app.config.update(
+    MAIL_SERVER='smtp.gmail.com',
+    MAIL_PORT=587,
+    MAIL_USE_TLS=True,
+    MAIL_USERNAME='your_email@gmail.com',        # 🔁 Replace with your Gmail
+    MAIL_PASSWORD='your_app_password',           # 🔁 Replace with your Gmail App Password
+)
+mail = Mail(app)
+
+# OpenAI Key
+openai.api_key = "your_openai_api_key"  # 🔁 Replace with your OpenAI API key
+
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    if request.method == "POST":
-        issue = request.form["issue"]
-        against = request.form["against"]
+    if request.method == 'POST':
+        issue = request.form['issue']
+        against = request.form['against']
+        date = request.form['date']
+        location = request.form['location']
+        description = request.form['description']
+        email = request.form['email']
 
-        templates = [
-            f"""
-            To Whom It May Concern,
+        # ChatGPT generated content
+        prompt = f"Write a legal complaint in simple English about {issue} against {against} that occurred on {date} at {location}. Description: {description}"
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+            max_tokens=300
+        )
+        complaint_text = response.choices[0].message.content.strip()
 
-            I am writing to file a formal complaint regarding a matter involving "{issue}" against "{against}". The situation has caused considerable concern and must be addressed by the appropriate authorities.
+        # Email the complaint
+        if email:
+            msg = Message('Your Complaint Document', sender='your_email@gmail.com', recipients=[email])
+            msg.body = complaint_text
+            mail.send(msg)
 
-            I urge you to take immediate and appropriate legal or administrative action to resolve this matter efficiently.
+        # Generate PDF
+        pdf_buffer = io.BytesIO()
+        p = canvas.Canvas(pdf_buffer)
+        p.drawString(100, 800, "AutoComplaint Generator")
+        p.drawString(100, 780, f"Date: {date}")
+        p.drawString(100, 760, f"Location: {location}")
+        p.drawString(100, 740, f"Issue: {issue}")
+        p.drawString(100, 720, f"Against: {against}")
+        p.drawString(100, 700, "Complaint:")
+        text_object = p.beginText(100, 680)
+        for line in complaint_text.split('\n'):
+            text_object.textLine(line)
+        p.drawText(text_object)
+        p.showPage()
+        p.save()
+        pdf_buffer.seek(0)
 
-            Thank you for your attention to this serious concern.
+        return send_file(pdf_buffer, as_attachment=True, download_name="complaint.pdf")
 
-            Sincerely,  
-            The Complainant
-            """,
-
-            f"""
-            Respected Sir/Madam,
-
-            This is to bring to your notice that I have encountered an issue concerning "{issue}" involving "{against}". I believe this issue is unjust and deserves legal scrutiny.
-
-            Kindly investigate the matter and initiate the required proceedings to ensure justice is served.
-
-            Regards,  
-            The Aggrieved
-            """,
-
-            f"""
-            Dear Concerned Authority,
-
-            I wish to formally report a matter related to "{issue}" in connection with "{against}". This incident has negatively impacted me and I request immediate attention to the problem.
-
-            Please take the necessary steps as per applicable laws to address and resolve the issue effectively.
-
-            Yours faithfully,  
-            Complainant
-            """
-        ]
-
-        complaint = random.choice(templates).strip()
-        return render_template("result.html", complaint=complaint)
-    return render_template("index.html")
+    return render_template('index.html')

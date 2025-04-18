@@ -1,2 +1,5 @@
-flask
+Flask
 gunicorn
+reportlab
+flask-mail
+openai
