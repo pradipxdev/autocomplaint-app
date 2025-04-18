@@ -1,7 +1,60 @@
-<form method="POST" action="/">
-  <label>Issue:</label><br>
-  <input type="text" name="issue"><br><br>
-  <label>Against:</label><br>
-  <input type="text" name="against"><br><br>
-  <input type="submit" value="Generate Complaint">
-</form>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AutoComplaint Generator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            padding: 40px;
+            background-color: #e0e0e0;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        .submit-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .submit-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>📋 AutoComplaint Generator</h2>
+        <form method="post">
+            <label for="issue">Issue</label>
+            <input type="text" id="issue" name="issue" required>
+
+            <label for="against">Against</label>
+            <input type="text" id="against" name="against" required>
+
+            <button type="submit" class="submit-btn">Generate Complaint</button>
+        </form>
+    </div>
+</body>
+</html>
