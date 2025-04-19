@@ -35,5 +35,12 @@
 - 🎙️ Voice input
 - 🪪 Aadhaar validation (offline)
 
+## 🔗 Live App
+
+🚀 [Click here to use the AutoComplaint App](https://autocomplaint-app.onrender.com)
+
+📱 Generate, export, and email smart complaints – anytime, anywhere.
+
+
 
 
