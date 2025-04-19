@@ -9,17 +9,23 @@
 <body class="bg-dark text-light">
   <div class="container mt-5">
     <h1 class="text-center text-warning mb-4">🛡️ AutoComplaint Generator</h1>
-    <form method="POST">
+    
+    <!-- Complaint Form -->
+    <form method="POST" id="complaintForm">
       <div class="mb-3">
         <label class="form-label">Your Name</label>
         <input type="text" name="name" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Your Email (for sending complaint)</label>
+        <input type="email" name="email" class="form-control" placeholder="you@example.com">
       </div>
       <div class="mb-3">
         <label class="form-label">Issue</label>
         <input type="text" name="issue" class="form-control" required>
       </div>
       <div class="mb-3">
-        <label class="form-label">Against</label>
+        <label class="form-label">Against (Person/Org)</label>
         <input type="text" name="against" class="form-control" required>
       </div>
       <div class="mb-3">
@@ -41,7 +47,13 @@
           <option value="hi">Hindi</option>
         </select>
       </div>
-      <button type="submit" class="btn btn-warning w-100">🪄 Generate Complaint</button>
+
+      <!-- Submit Buttons -->
+      <div class="d-flex flex-column flex-md-row gap-3">
+        <button type="submit" formaction="/" class="btn btn-warning w-100">🪄 Generate Complaint</button>
+        <button type="submit" formaction="/generate_pdf" class="btn btn-outline-info w-100">📤 Export as PDF</button>
+        <button type="submit" formaction="/send_email" class="btn btn-success w-100">📧 Send as Email</button>
+      </div>
     </form>
   </div>
 </body>

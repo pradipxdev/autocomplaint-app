@@ -1,0 +1,123 @@
+/* Base Styling */
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f0f2f5;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Header */
+header {
+    background: #3f51b5;
+    padding: 20px 0;
+    color: white;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+header a {
+    color: white;
+    margin: 0 15px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+header a:hover {
+    color: #ffc107;
+}
+
+/* Form Styling */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+form input, form textarea, form select {
+    width: 100%;
+    max-width: 600px;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    transition: border-color 0.3s;
+}
+
+form input:focus, form textarea:focus, form select:focus {
+    border-color: #3f51b5;
+    outline: none;
+}
+
+form button {
+    padding: 12px 24px;
+    background: #3f51b5;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background 0.3s ease;
+    margin-top: 10px;
+}
+
+form button:hover {
+    background: #303f9f;
+}
+
+/* Flash Messages */
+.flash {
+    color: #e53935;
+    background-color: #ffebee;
+    padding: 10px;
+    margin: 20px auto;
+    border-radius: 10px;
+    width: fit-content;
+    list-style: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Complaint Text Styling */
+.complaint-box {
+    white-space: pre-wrap;
+    text-align: left;
+    background: #fafafa;
+    padding: 20px;
+    border-left: 5px solid #3f51b5;
+    border-radius: 12px;
+    margin-top: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .container {
+        margin: 20px;
+        padding: 15px;
+    }
+
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    form input, form textarea, form select {
+        max-width: 100%;
+    }
+}
